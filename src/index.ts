@@ -1,22 +1,37 @@
-import { load } from "cheerio";
-import * as fs from "node:fs/promises";
+import { createServer } from "http";
+import { articles } from "./scraper/index.js";
+const hostname = "127.0.0.1";
 
-const URL =
-  "https://books.toscrape.com/catalogue/category/books/mystery_3/index.html";
+const server = createServer((req, res) => {
+  const { method } = req;
+  const url = new URL(req.url ?? "/", `http://${hostname}`);
+  const search = url.searchParams.get("title") ?? "";
 
-try {
-  const res = await fetch(URL);
-  const text = await res.text();
-  const $ = load(text);
-  const elements = $("article");
-  fs.writeFile("mystery_books.txt", "utf8");
-
-  elements.each((i, element) => {
-    const title = $(element).find("h3").text();
-    const url = $(element).find("a").attr("href");
-    fs.appendFile("mystery_books.txt", `${title} ${url} \n`);
+  req.on("error", (err) => {
+    console.error(err);
+    res.statusCode = 500;
+    res.end();
   });
-  console.log("mystery_books.txt was created");
-} catch (err) {
-  console.error(err, "err");
-}
+
+  if (method !== "GET" || url.pathname !== "/articles") {
+    res.statusCode = 404;
+    res.end();
+    return;
+  }
+
+  if (search === "") {
+    res.write(JSON.stringify(articles));
+    res.end();
+    return;
+  }
+
+  const el = articles.find((book) => book.title === search);
+  if (el) {
+    res.write(JSON.stringify(el));
+  } else {
+    res.statusCode = 404;
+  }
+  res.end();
+});
+
+server.listen({ port: 3001, host: hostname });

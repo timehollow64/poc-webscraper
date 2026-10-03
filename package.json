@@ -7,6 +7,10 @@
   "engines": {
     "node": ">=22.12"
   },
+  "allowScripts": {
+    "puppeteer": true,
+    "esbuild": true
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
@@ -15,7 +19,8 @@
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run typecheck && npm run lint && npm run test"
+    "check": "npm run typecheck && npm run lint && npm run test",
+    "browser": ""
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -29,6 +34,7 @@
   },
   "dependencies": {
     "cheerio": "^1.2.0",
-    "linkedom": "^0.18.13"
+    "linkedom": "^0.18.13",
+    "puppeteer": "^25.12.0"
   }
 }
